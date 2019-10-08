@@ -103,7 +103,7 @@ void update_rx() {
           stop_streaming();
           break;
       }
-    } else {
+    } else if (isdigit(rx_byte)) {
       rx_string += rx_byte;
     }
   }
