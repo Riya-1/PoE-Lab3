@@ -1,0 +1,29 @@
+Packet Initiator = '@';
+Packet Terminator = ';';
+Args Initiator = '{';
+Args Terminator = '}';
+Args Separator = ',';
+
+
+Messages the computer can send:
+
+check that the program is running := PING
+
+set base motor speed := BASESPEED{speed}
+set added speed := ADDEDSPEED{speed}
+
+set left ir threshold value := LEFTIRTHRESH{cutoff_val}
+set right ir threshold value := RIGHTIRTHRESH{cutoff_val}
+
+start streaming ir readings := STARTIRSTREAM
+stop streaming ir readings := STOPIRSTREAM
+
+
+Messages the Arduino can send:
+
+on start of serial connection := JOHNNY5ISALIVE
+
+accept request from computer := ACK{request}
+reject request from computer := NO{request}
+
+individual ir reading := IR{leftIR,rightIR}
