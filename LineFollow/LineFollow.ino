@@ -27,14 +27,18 @@ char rx_byte;
 String rx_string = "";
 bool receiving_val = false;
 char last_cmd_received;
-String all_cmds = "balrsd";
+String all_cmds = "balrsdpo";
 bool streaming = false;
+bool plotStreaming = false;
+int rSpeed = mSpeed;
+int lSpeed = mSpeed;
+
 
 void setup() {
   AFMS.begin();
-  motorLeft->setSpeed(mSpeed);
-  motorRight->setSpeed(mSpeed);
-
+  motorLeft->setSpeed(rSpeed);
+  motorRight->setSpeed(lSpeed);
+  delay(2000);
   pinMode(irLeft, INPUT);
   pinMode(irRight, INPUT);
   Serial.begin(9600);
@@ -42,31 +46,41 @@ void setup() {
 
 void loop() {
   update_rx();
-  
+
   if (streaming) {
     Serial.print("IRSensor  ");
-    Serial.print(analogRead(A0));
+    Serial.print(analogRead(irLeft));
     Serial.print(" ");
-    Serial.print(analogRead(A1));
+    Serial.print(analogRead(irRight));
     Serial.println();
+  }
+
+  if (plotStreaming) {
+    Serial.print(analogRead(irLeft));     Serial.print(",");
+    Serial.print(analogRead(irRight));     Serial.print(",");
+    Serial.print(lSpeed);     Serial.print(",");
+    Serial.println(rSpeed);
   }
 
   motorLeft->run(FORWARD);
   motorRight->run(FORWARD);
-  
+
   if (analogRead(irLeft) > lVal)
   {
-    motorRight->setSpeed(mSpeed + mSpeedChange);
-    motorLeft->setSpeed(0);
+    rSpeed = mSpeed + mSpeedChange; lSpeed = 0;
+    motorRight->setSpeed(rSpeed);
+    motorLeft->setSpeed(lSpeed);
   }
 
   else if (analogRead(irRight) > rVal)
   {
-    motorLeft->setSpeed(mSpeed + mSpeedChange);
-    motorRight->setSpeed(0);
+    lSpeed = mSpeed + mSpeedChange; rSpeed = 0;
+    motorLeft->setSpeed(lSpeed);
+    motorRight->setSpeed(rSpeed);
   }
 
   else {
+    rSpeed = mSpeed; lSpeed = mSpeed;
     motorRight->setSpeed(mSpeed);
     motorLeft->setSpeed(mSpeed);
   }
@@ -75,7 +89,7 @@ void loop() {
 void update_rx() {
   while (Serial.available()) {
     rx_byte = Serial.read();
-    
+
     if (!receiving_val) {
       if (all_cmds.indexOf(rx_byte) > -1) {
         last_cmd_received = rx_byte;
@@ -84,7 +98,7 @@ void update_rx() {
       }
     } else if (rx_byte == ';') {
       receiving_val = false;
-      
+
       switch (last_cmd_received) {
         case 'b':
           set_base_speed();
@@ -103,6 +117,12 @@ void update_rx() {
           break;
         case 'd':
           stop_streaming();
+          break;
+        case 'p':
+          start_plotting_stream();
+          break;
+        case 'o':
+          stop_plotting_stream();
           break;
       }
     } else if (isdigit(rx_byte)) {
@@ -148,5 +168,15 @@ void start_streaming() {
 void stop_streaming() {
   streaming = false;
   Serial.println("Streaming disabled");
+  return;
+}
+
+void start_plotting_stream() {
+  plotStreaming = true;
+  return;
+}
+
+void stop_plotting_stream() {
+  plotStreaming = false;
   return;
 }
