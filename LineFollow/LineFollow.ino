@@ -8,10 +8,10 @@ Adafruit_DCMotor *motorRight = AFMS.getMotor(2);
 
 int irLeft = A1;
 int irRight = A0;
-int lVal = 900;
-int rVal = 750;
+int lVal = 700;
+int rVal = 650;
 int mSpeed = 25;
-int mSpeedChange = 5;
+int mSpeedChange = 100;
 
 // SERIAL PROTOCOL:
 // Format -> [cmd_char][num_value];
@@ -57,11 +57,13 @@ void loop() {
   if (analogRead(irLeft) > lVal)
   {
     motorRight->setSpeed(mSpeed + mSpeedChange);
+    motorLeft->setSpeed(0);
   }
 
   else if (analogRead(irRight) > rVal)
   {
     motorLeft->setSpeed(mSpeed + mSpeedChange);
+    motorRight->setSpeed(0);
   }
 
   else {
